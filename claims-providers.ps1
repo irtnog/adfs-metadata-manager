@@ -1,6 +1,9 @@
+## read the list of entities currently trusted as claims providers
 $existing_cp_trusts = @(Get-ADFSClaimsProviderTrust | ForEach-Object { $_.Identifier })
-$configured_cp_trusts = @()
 
+## TODO: load the list of entities configured during the last run
+
+$configured_cp_trusts = @()
 $entities = Invoke-RestMethod -Uri http://mdq-beta.incommon.org/global/x-entity-list -Method Get
 foreach ($entity in $entities)
 {
@@ -25,6 +28,19 @@ foreach ($entity in $entities)
             $filtered = $false
             break
         }
+    }
+    if ($filtered) { continue }
+
+    ## Stop here if the entity is blacklisted.
+    foreach ($entityAttribute in $metadata.EntityDescriptor.Extensions.EntityAttributes.Attribute)
+    {
+        if ($entityAttribute.Name -eq 'http://macedir.org/entity-category' `
+	    -and $entityAttribute.NameFormat -eq 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri' `
+	    -and $entityAttribute.AttributeValue -eq 'http://refeds.org/category/hide-from-discovery')
+        {
+	    $filtered = $true
+	    break
+	}
     }
     if ($filtered) { continue }
 
