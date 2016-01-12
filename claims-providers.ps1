@@ -17,13 +17,15 @@ foreach ($entity in $entities)
     ## Stop here if the entity is not an identity provider.
     if ($metadata.EntityDescriptor.IDPSSODescriptor -eq $null) { continue }
 
-    ## Stop here if the entity does not support REFEDS R&S.
+    ## Stop here if the IdP does not support REFEDS R&S attribute
+    ## release.
     $filtered = $true
     foreach ($entityAttribute in $metadata.EntityDescriptor.Extensions.EntityAttributes.Attribute)
     {
         if ($entityAttribute.Name -eq 'http://macedir.org/entity-category-support' `
             -and $entityAttribute.NameFormat -eq 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri' `
-            -and $entityAttribute.AttributeValue -eq 'http://refeds.org/category/research-and-scholarship')
+            -and ($entityAttribute.AttributeValue -eq 'http://id.incommon.org/category/research-and-scholarship'
+                  -or $entityAttribute.AttributeValue -eq 'http://refeds.org/category/research-and-scholarship'))
         {
             $filtered = $false
             break
