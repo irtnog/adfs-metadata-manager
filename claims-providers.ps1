@@ -55,7 +55,8 @@ foreach ($entity in $entities)
         }
         else
         {
-            ## I had problems using the organization names included in the metadata.
+            ## FIXME: I had problems using the organization names
+            ## included in the metadata that had special characters.
             Add-AdfsClaimsProviderTrust -Name $entity.roles[0].displayName -MetadataFile $metadataFile
         }
         $configured_cp_trusts += $entity.entityID
